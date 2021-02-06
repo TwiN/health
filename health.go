@@ -4,7 +4,7 @@ import "net/http"
 
 var (
 	handler = &healthHandler{
-		useJSON: true,
+		useJSON: false,
 		status:  Up,
 	}
 )
@@ -14,6 +14,9 @@ type healthHandler struct {
 	status  Status
 }
 
+// WithJSON configures whether the handler should output a response in JSON or in raw text
+//
+// Defaults to false
 func (h *healthHandler) WithJSON(v bool) *healthHandler {
 	h.useJSON = v
 	return h
