@@ -63,5 +63,4 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 			}
 		})
 	}
-
 }
