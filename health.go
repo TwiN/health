@@ -40,10 +40,12 @@ func (h healthHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	_, _ = writer.Write(body)
 }
 
+// Handler retrieves the health handler
 func Handler() *healthHandler {
 	return handler
 }
 
+// SetStatus sets the status to be reflected by the health handler
 func SetStatus(status Status) {
 	handler.status = status
 }
