@@ -22,7 +22,7 @@ func (h *healthHandler) WithJSON(v bool) *healthHandler {
 	return h
 }
 
-func (h healthHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func (h healthHandler) ServeHTTP(writer http.ResponseWriter, _ *http.Request) {
 	var status int
 	var body []byte
 	if h.status == Up {

@@ -11,6 +11,7 @@ Health is a library used for creating a very simple health endpoint.
 While implementing a health endpoint is very simple, I've grown tired of implementing 
 it over and over again.
 
+
 ## Installation
 
 ```
@@ -44,6 +45,7 @@ or `health.Down`:
 health.SetStatus(health.Up)
 health.SetStatus(health.Down)
 ```
+
 
 ### Complete example
 
