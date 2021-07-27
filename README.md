@@ -1,5 +1,4 @@
 # health
-
 ![build](https://github.com/TwinProduction/health/workflows/build/badge.svg?branch=master) 
 [![Go Report Card](https://goreportcard.com/badge/github.com/TwinProduction/health)](https://goreportcard.com/report/github.com/TwinProduction/health)
 [![codecov](https://codecov.io/gh/TwinProduction/health/branch/master/graph/badge.svg)](https://codecov.io/gh/TwinProduction/health)
@@ -13,21 +12,19 @@ it over and over again.
 
 
 ## Installation
-
 ```
 go get -u github.com/TwinProduction/health
 ```
 
 
 ## Usage
-
 To retrieve the handler, you must use `health.Handler()` and are expected to pass it to the router like so:
 ```go
 router := http.NewServeMux()
 router.Handle("/health", health.Handler())
 server := &http.Server{
-	Addr:    ":8080",
-	Handler: router,
+    Addr:    ":8080",
+    Handler: router,
 }
 ```
 
@@ -48,27 +45,26 @@ health.SetStatus(health.Down)
 
 
 ### Complete example
-
 ```go
 package main
 
 import (
-	"net/http"
-	"time"
+    "net/http"
+    "time"
 
-	"github.com/TwinProduction/health"
+    "github.com/TwinProduction/health"
 )
 
 func main() {
-	router := http.NewServeMux()
-	router.Handle("/health", health.Handler())
-	server := &http.Server{
-		Addr:         "0.0.0.0:8080",
-		Handler:      router,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout:  15 * time.Second,
-	}
-	server.ListenAndServe()
+    router := http.NewServeMux()
+    router.Handle("/health", health.Handler())
+    server := &http.Server{
+        Addr:         "0.0.0.0:8080",
+        Handler:      router,
+        ReadTimeout:  15 * time.Second,
+        WriteTimeout: 15 * time.Second,
+        IdleTimeout:  15 * time.Second,
+    }
+    server.ListenAndServe()
 }
 ```
