@@ -22,6 +22,7 @@ func (h *healthHandler) WithJSON(v bool) *healthHandler {
 	return h
 }
 
+// ServeHTTP serves the HTTP request for the health handler
 func (h healthHandler) ServeHTTP(writer http.ResponseWriter, _ *http.Request) {
 	var status int
 	var body []byte
