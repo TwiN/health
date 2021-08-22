@@ -9,6 +9,7 @@ var (
 	}
 )
 
+// healthHandler is the HTTP handler for serving the health endpoint
 type healthHandler struct {
 	useJSON bool
 	status  Status
