@@ -50,7 +50,7 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 			handler := Handler().WithJSON(scenario.useJSON)
 			SetStatus(scenario.status)
 
-			request, _ := http.NewRequest("GET", "/health", nil)
+			request, _ := http.NewRequest("GET", "/health", http.NoBody)
 			responseRecorder := httptest.NewRecorder()
 
 			handler.ServeHTTP(responseRecorder, request)
