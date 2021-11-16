@@ -64,3 +64,15 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 		})
 	}
 }
+
+func TestSetStatus(t *testing.T) {
+	SetStatus(Up)
+	if GetStatus() != Up {
+		t.Error("expected status to be Up, got", GetStatus())
+	}
+	SetStatus(Down)
+	if GetStatus() != Down {
+		t.Error("expected status to be Down, got", GetStatus())
+	}
+	SetStatus(Up)
+}
