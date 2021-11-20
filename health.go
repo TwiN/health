@@ -24,7 +24,7 @@ type healthHandler struct {
 	status  Status
 	reason  string
 
-	sync.RWMutex
+	mutex sync.RWMutex
 }
 
 // WithJSON configures whether the handler should output a response in JSON or in raw text
@@ -39,9 +39,9 @@ func (h *healthHandler) WithJSON(v bool) *healthHandler {
 func (h *healthHandler) ServeHTTP(writer http.ResponseWriter, _ *http.Request) {
 	var statusCode int
 	var body []byte
-	h.Lock()
+	h.mutex.Lock()
 	status, reason, useJSON := h.status, h.reason, h.useJSON
-	h.Unlock()
+	h.mutex.Unlock()
 	if status == Up {
 		statusCode = http.StatusOK
 	} else {
@@ -69,28 +69,28 @@ func Handler() *healthHandler {
 
 // GetStatus retrieves the current status returned by the health handler
 func GetStatus() Status {
-	handler.Lock()
-	defer handler.Unlock()
+	handler.mutex.Lock()
+	defer handler.mutex.Unlock()
 	return handler.status
 }
 
 // SetStatus sets the status to be returned by the health handler
 func SetStatus(status Status) {
-	handler.Lock()
+	handler.mutex.Lock()
 	handler.status = status
-	handler.Unlock()
+	handler.mutex.Unlock()
 }
 
 // GetReason retrieves the current status returned by the health handler
 func GetReason() string {
-	handler.Lock()
-	defer handler.Unlock()
+	handler.mutex.Lock()
+	defer handler.mutex.Unlock()
 	return handler.reason
 }
 
 // SetReason sets a reason for the current status to be returned by the health handler
 func SetReason(reason string) {
-	handler.Lock()
+	handler.mutex.Lock()
 	handler.reason = reason
-	handler.Unlock()
+	handler.mutex.Unlock()
 }
