@@ -39,9 +39,9 @@ func (h *healthHandler) WithJSON(v bool) *healthHandler {
 func (h *healthHandler) ServeHTTP(writer http.ResponseWriter, _ *http.Request) {
 	var statusCode int
 	var body []byte
-	h.mutex.Lock()
+	h.mutex.RLock()
 	status, reason, useJSON := h.status, h.reason, h.useJSON
-	h.mutex.Unlock()
+	h.mutex.RUnlock()
 	if status == Up {
 		statusCode = http.StatusOK
 	} else {
@@ -69,8 +69,8 @@ func Handler() *healthHandler {
 
 // GetStatus retrieves the current status returned by the health handler
 func GetStatus() Status {
-	handler.mutex.Lock()
-	defer handler.mutex.Unlock()
+	handler.mutex.RLock()
+	defer handler.mutex.RUnlock()
 	return handler.status
 }
 
@@ -83,8 +83,8 @@ func SetStatus(status Status) {
 
 // GetReason retrieves the current status returned by the health handler
 func GetReason() string {
-	handler.mutex.Lock()
-	defer handler.mutex.Unlock()
+	handler.mutex.RLock()
+	defer handler.mutex.RUnlock()
 	return handler.reason
 }
 
