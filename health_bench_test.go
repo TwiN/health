@@ -8,8 +8,8 @@ import (
 )
 
 func BenchmarkHealthHandler_ServeHTTP(b *testing.B) {
+	h := Handler().WithJSON(true)
 	b.RunParallel(func(pb *testing.PB) {
-		h := Handler()
 		for pb.Next() {
 			request, _ := http.NewRequest("GET", "/health", http.NoBody)
 			responseRecorder := httptest.NewRecorder()

@@ -12,6 +12,7 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 		Name                 string
 		useJSON              bool
 		status               Status
+		reason               string
 		expectedResponseBody string
 		expectedResponseCode int
 	}
@@ -24,10 +25,26 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 			expectedResponseCode: 200,
 		},
 		{
+			Name:                 "text-up-reason",
+			useJSON:              false,
+			status:               Up,
+			reason:               "reason",
+			expectedResponseBody: "UP: reason",
+			expectedResponseCode: 200,
+		},
+		{
 			Name:                 "text-down",
 			useJSON:              false,
 			status:               Down,
 			expectedResponseBody: "DOWN",
+			expectedResponseCode: 500,
+		},
+		{
+			Name:                 "text-down-reason",
+			useJSON:              false,
+			status:               Down,
+			reason:               "reason",
+			expectedResponseBody: "DOWN: reason",
 			expectedResponseCode: 500,
 		},
 		{
@@ -38,10 +55,34 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 			expectedResponseCode: 200,
 		},
 		{
+			Name:                 "json-up-reason",
+			useJSON:              true,
+			status:               Up,
+			reason:               "Error",
+			expectedResponseBody: `{"status":"UP","reason":"Error"}`,
+			expectedResponseCode: 200,
+		},
+		{
 			Name:                 "json-down",
 			useJSON:              true,
 			status:               Down,
 			expectedResponseBody: `{"status":"DOWN"}`,
+			expectedResponseCode: 500,
+		},
+		{
+			Name:                 "json-down-reason",
+			useJSON:              true,
+			status:               Down,
+			reason:               "Error",
+			expectedResponseBody: `{"status":"DOWN","reason":"Error"}`,
+			expectedResponseCode: 500,
+		},
+		{
+			Name:                 "json-down-reason-with-quotes",
+			useJSON:              true,
+			status:               Down,
+			reason:               `error "with" quotes`,
+			expectedResponseBody: `{"status":"DOWN","reason":"error \"with\" quotes"}`,
 			expectedResponseCode: 500,
 		},
 	}
@@ -49,6 +90,7 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 		t.Run(scenario.Name, func(t *testing.T) {
 			handler := Handler().WithJSON(scenario.useJSON)
 			SetStatus(scenario.status)
+			SetReason(scenario.reason)
 
 			request, _ := http.NewRequest("GET", "/health", http.NoBody)
 			responseRecorder := httptest.NewRecorder()
@@ -68,11 +110,26 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 func TestSetStatus(t *testing.T) {
 	SetStatus(Up)
 	if GetStatus() != Up {
-		t.Error("expected status to be Up, got", GetStatus())
+		t.Error("expected status to be 'Up', got", GetStatus())
 	}
 	SetStatus(Down)
 	if GetStatus() != Down {
-		t.Error("expected status to be Down, got", GetStatus())
+		t.Error("expected status to be 'Down', got", GetStatus())
 	}
 	SetStatus(Up)
+}
+
+func TestSetReason(t *testing.T) {
+	SetReason("hello")
+	if GetReason() != "hello" {
+		t.Error("expected reason to be 'hello', got", GetReason())
+	}
+	SetReason("world")
+	if GetReason() != "world" {
+		t.Error("expected reason to be 'world', got", GetReason())
+	}
+	SetReason("")
+	if GetReason() != "" {
+		t.Error("expected reason to be '', got", GetReason())
+	}
 }
