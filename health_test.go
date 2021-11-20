@@ -133,3 +133,13 @@ func TestSetReason(t *testing.T) {
 		t.Error("expected reason to be '', got", GetReason())
 	}
 }
+
+func TestSetStatusAndReason(t *testing.T) {
+	SetStatusAndReason(Down, "for what")
+	if GetStatus() != Down {
+		t.Error("expected status to be 'Down', got", GetStatus())
+	}
+	if GetReason() != "for what" {
+		t.Error("expected reason to be 'hello', got", GetReason())
+	}
+}

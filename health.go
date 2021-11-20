@@ -20,9 +20,11 @@ type responseBody struct {
 
 // healthHandler is the HTTP handler for serving the health endpoint
 type healthHandler struct {
-	useJSON bool
-	status  Status
-	reason  string
+	useJSON         bool
+	resetReasonOnUp bool
+
+	status Status
+	reason string
 
 	mutex sync.RWMutex
 }
@@ -91,6 +93,14 @@ func GetReason() string {
 // SetReason sets a reason for the current status to be returned by the health handler
 func SetReason(reason string) {
 	handler.mutex.Lock()
+	handler.reason = reason
+	handler.mutex.Unlock()
+}
+
+// SetStatusAndReason sets the status and reason to be returned by the health handler
+func SetStatusAndReason(status Status, reason string) {
+	handler.mutex.Lock()
+	handler.status = status
 	handler.reason = reason
 	handler.mutex.Unlock()
 }
