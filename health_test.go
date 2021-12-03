@@ -1,7 +1,7 @@
 package health
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -99,7 +99,7 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 			if responseRecorder.Code != scenario.expectedResponseCode {
 				t.Errorf("expected GET /health to return status code %d, got %d", scenario.expectedResponseCode, responseRecorder.Code)
 			}
-			body, _ := ioutil.ReadAll(responseRecorder.Body)
+			body, _ := io.ReadAll(responseRecorder.Body)
 			if string(body) != scenario.expectedResponseBody {
 				t.Errorf("expected GET /health to return %s, got %s", scenario.expectedResponseBody, string(body))
 			}

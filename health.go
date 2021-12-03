@@ -20,8 +20,7 @@ type responseBody struct {
 
 // healthHandler is the HTTP handler for serving the health endpoint
 type healthHandler struct {
-	useJSON         bool
-	resetReasonOnUp bool
+	useJSON bool
 
 	status Status
 	reason string
