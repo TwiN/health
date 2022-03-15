@@ -12,7 +12,7 @@ it over and over again.
 
 
 ## Installation
-```
+```console
 go get -u github.com/TwiN/health
 ```
 
@@ -50,6 +50,9 @@ health.SetReason("database is unreachable")
 ```
 
 Generally speaking, you'd only want to include a reason if the status is `Down`, but you can do as you desire.
+
+For the sake of convenience, you can also use `health.SetStatusAndReason(<status>, <reason>)` instead of doing 
+`health.SetStatus(<status>)` and `health.SetReason(<reason>)` separately.
 
 
 ### Complete example
