@@ -13,6 +13,7 @@ var (
 	}
 )
 
+// responseBody is the body of the response returned by the health handler.
 type responseBody struct {
 	Status string `json:"status"`
 	Reason string `json:"reason,omitempty"`
