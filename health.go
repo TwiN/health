@@ -104,3 +104,22 @@ func SetStatusAndReason(status Status, reason string) {
 	handler.reason = reason
 	handler.mutex.Unlock()
 }
+
+// SetHealthy sets the status to Up and the reason to a blank string
+func SetHealthy() {
+	handler.mutex.Lock()
+	handler.status = Up
+	handler.reason = ""
+	handler.mutex.Unlock()
+}
+
+// SetUnhealthy sets the status to Down and the reason to the string passed as parameter
+//
+// Unlike SetHealthy, this function enforces setting a reason, because it's good practice to give at least a bit
+// of information as to why an application is unhealthy, and this library attempts to promote good practices.
+func SetUnhealthy(reason string) {
+	handler.mutex.Lock()
+	handler.status = Down
+	handler.reason = reason
+	handler.mutex.Unlock()
+}

@@ -37,7 +37,11 @@ The above will cause the response body to become `{"status":"UP"}` and `{"status
 unless there is a reason, in which case a reason set to `because` would return `{"status":"UP", "reason":"because"}`
 and `{"status":"DOWN", "reason":"because"}` respectively.
 
-To change the health of the application, you can use `health.SetStatus(<status>)` where `<status>` is one `health.Up`
+To set the health status to `DOWN`, you may use `health.SetUnhealthy("<enter reason here>`)` -- the
+string passed will be automatically set as the reason. In a similar fashion, to set the health status to `UP`,
+you may use `health.SetHealthy()`.
+
+Alternatively, to change the health of the application, you can use `health.SetStatus(<status>)` where `<status>` is `health.Up`
 or `health.Down`:
 ```go
 health.SetStatus(health.Up)

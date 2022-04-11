@@ -143,3 +143,37 @@ func TestSetStatusAndReason(t *testing.T) {
 		t.Error("expected reason to be 'hello', got", GetReason())
 	}
 }
+
+func TestSetHealthy(t *testing.T) {
+	SetStatusAndReason(Down, "for what")
+	if GetStatus() != Down {
+		t.Error("expected status to be 'Down', got", GetStatus())
+	}
+	if GetReason() != "for what" {
+		t.Error("expected reason to be 'for what', got", GetReason())
+	}
+	SetHealthy()
+	if GetStatus() != Up {
+		t.Error("expected status to be 'Up', got", GetStatus())
+	}
+	if GetReason() != "" {
+		t.Error("expected reason to be '', got", GetReason())
+	}
+}
+
+func TestSetUnhealthy(t *testing.T) {
+	SetStatusAndReason(Up, "")
+	if GetStatus() != Up {
+		t.Error("expected status to be '', got", GetStatus())
+	}
+	if GetReason() != "" {
+		t.Error("expected reason to be '', got", GetReason())
+	}
+	SetUnhealthy("for what")
+	if GetStatus() != Down {
+		t.Error("expected status to be 'Down', got", GetStatus())
+	}
+	if GetReason() != "for what" {
+		t.Error("expected reason to be 'for what', got", GetReason())
+	}
+}
