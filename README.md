@@ -28,7 +28,7 @@ server := &http.Server{
 }
 ```
 
-By default, the handler will return `UP` when the status is down, and `DOWN` when the status is down.
+By default, the handler will return `UP` when the status is up, and `DOWN` when the status is down.
 If you prefer using JSON, however, you may initialize the health handler like so:
 ```go
 router.Handle("/health", health.Handler().WithJSON(true))
