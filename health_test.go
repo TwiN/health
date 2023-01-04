@@ -1,17 +1,20 @@
-package health
+package health_test
 
 import (
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/TwiN/health"
 )
 
 func TestHealthHandler_ServeHTTP(t *testing.T) {
+	defer health.SetHealthy()
 	type Scenario struct {
 		Name                 string
 		useJSON              bool
-		status               Status
+		status               health.Status
 		reason               string
 		expectedResponseBody string
 		expectedResponseCode int
@@ -20,14 +23,14 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 		{
 			Name:                 "text-up",
 			useJSON:              false,
-			status:               Up,
+			status:               health.Up,
 			expectedResponseBody: "UP",
 			expectedResponseCode: 200,
 		},
 		{
 			Name:                 "text-up-reason",
 			useJSON:              false,
-			status:               Up,
+			status:               health.Up,
 			reason:               "reason",
 			expectedResponseBody: "UP: reason",
 			expectedResponseCode: 200,
@@ -35,14 +38,14 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 		{
 			Name:                 "text-down",
 			useJSON:              false,
-			status:               Down,
+			status:               health.Down,
 			expectedResponseBody: "DOWN",
 			expectedResponseCode: 500,
 		},
 		{
 			Name:                 "text-down-reason",
 			useJSON:              false,
-			status:               Down,
+			status:               health.Down,
 			reason:               "reason",
 			expectedResponseBody: "DOWN: reason",
 			expectedResponseCode: 500,
@@ -50,14 +53,14 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 		{
 			Name:                 "json-up",
 			useJSON:              true,
-			status:               Up,
+			status:               health.Up,
 			expectedResponseBody: `{"status":"UP"}`,
 			expectedResponseCode: 200,
 		},
 		{
 			Name:                 "json-up-reason",
 			useJSON:              true,
-			status:               Up,
+			status:               health.Up,
 			reason:               "Error",
 			expectedResponseBody: `{"status":"UP","reason":"Error"}`,
 			expectedResponseCode: 200,
@@ -65,14 +68,14 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 		{
 			Name:                 "json-down",
 			useJSON:              true,
-			status:               Down,
+			status:               health.Down,
 			expectedResponseBody: `{"status":"DOWN"}`,
 			expectedResponseCode: 500,
 		},
 		{
 			Name:                 "json-down-reason",
 			useJSON:              true,
-			status:               Down,
+			status:               health.Down,
 			reason:               "Error",
 			expectedResponseBody: `{"status":"DOWN","reason":"Error"}`,
 			expectedResponseCode: 500,
@@ -80,7 +83,7 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 		{
 			Name:                 "json-down-reason-with-quotes",
 			useJSON:              true,
-			status:               Down,
+			status:               health.Down,
 			reason:               `error "with" quotes`,
 			expectedResponseBody: `{"status":"DOWN","reason":"error \"with\" quotes"}`,
 			expectedResponseCode: 500,
@@ -88,9 +91,9 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 	}
 	for _, scenario := range scenarios {
 		t.Run(scenario.Name, func(t *testing.T) {
-			handler := Handler().WithJSON(scenario.useJSON)
-			SetStatus(scenario.status)
-			SetReason(scenario.reason)
+			handler := health.Handler().WithJSON(scenario.useJSON)
+			health.SetStatus(scenario.status)
+			health.SetReason(scenario.reason)
 
 			request, _ := http.NewRequest("GET", "/health", http.NoBody)
 			responseRecorder := httptest.NewRecorder()
@@ -107,90 +110,110 @@ func TestHealthHandler_ServeHTTP(t *testing.T) {
 	}
 }
 
+func TestHealthHandler_GetResponseStatusCodeAndBody(t *testing.T) {
+	defer health.SetHealthy()
+	handler := health.Handler().WithJSON(true)
+	health.SetStatus(health.Up)
+
+	statusCode, body := handler.GetResponseStatusCodeAndBody()
+	if statusCode != 200 {
+		t.Error("expected status code to be 200, got", statusCode)
+	}
+	if string(body) != `{"status":"UP"}` {
+		t.Error("expected body to be {\"status\":\"UP\"}, got", string(body))
+	}
+}
+
 func TestSetStatus(t *testing.T) {
-	SetStatus(Up)
-	if GetStatus() != Up {
-		t.Error("expected status to be 'Up', got", GetStatus())
+	defer health.SetHealthy()
+	health.SetStatus(health.Up)
+	if health.GetStatus() != health.Up {
+		t.Error("expected status to be 'Up', got", health.GetStatus())
 	}
-	SetStatus(Down)
-	if GetStatus() != Down {
-		t.Error("expected status to be 'Down', got", GetStatus())
+	health.SetStatus(health.Down)
+	if health.GetStatus() != health.Down {
+		t.Error("expected status to be 'Down', got", health.GetStatus())
 	}
-	SetStatus(Up)
+	health.SetStatus(health.Up)
 }
 
 func TestSetReason(t *testing.T) {
-	SetReason("hello")
-	if GetReason() != "hello" {
-		t.Error("expected reason to be 'hello', got", GetReason())
+	defer health.SetHealthy()
+	health.SetReason("hello")
+	if health.GetReason() != "hello" {
+		t.Error("expected reason to be 'hello', got", health.GetReason())
 	}
-	SetReason("world")
-	if GetReason() != "world" {
-		t.Error("expected reason to be 'world', got", GetReason())
+	health.SetReason("world")
+	if health.GetReason() != "world" {
+		t.Error("expected reason to be 'world', got", health.GetReason())
 	}
-	SetReason("")
-	if GetReason() != "" {
-		t.Error("expected reason to be '', got", GetReason())
+	health.SetReason("")
+	if health.GetReason() != "" {
+		t.Error("expected reason to be '', got", health.GetReason())
 	}
 }
 
 func TestSetStatusAndReason(t *testing.T) {
-	SetStatusAndReason(Down, "for what")
-	if GetStatus() != Down {
-		t.Error("expected status to be 'Down', got", GetStatus())
+	defer health.SetHealthy()
+	health.SetStatusAndReason(health.Down, "for what")
+	if health.GetStatus() != health.Down {
+		t.Error("expected status to be 'Down', got", health.GetStatus())
 	}
-	if GetReason() != "for what" {
-		t.Error("expected reason to be 'hello', got", GetReason())
+	if health.GetReason() != "for what" {
+		t.Error("expected reason to be 'hello', got", health.GetReason())
 	}
 }
 
 func TestSetStatusAndResetReason(t *testing.T) {
-	SetStatusAndReason(Down, "for what")
-	if GetStatus() != Down {
-		t.Error("expected status to be 'Down', got", GetStatus())
+	defer health.SetHealthy()
+	health.SetStatusAndReason(health.Down, "for what")
+	if health.GetStatus() != health.Down {
+		t.Error("expected status to be 'Down', got", health.GetStatus())
 	}
-	if GetReason() != "for what" {
-		t.Error("expected reason to be 'for what', got", GetReason())
+	if health.GetReason() != "for what" {
+		t.Error("expected reason to be 'for what', got", health.GetReason())
 	}
-	SetStatusAndResetReason(Up)
-	if GetStatus() != Up {
-		t.Error("expected status to be 'Up', got", GetStatus())
+	health.SetStatusAndResetReason(health.Up)
+	if health.GetStatus() != health.Up {
+		t.Error("expected status to be 'Up', got", health.GetStatus())
 	}
-	if GetReason() != "" {
-		t.Error("expected reason to be '', got", GetReason())
+	if health.GetReason() != "" {
+		t.Error("expected reason to be '', got", health.GetReason())
 	}
 }
 
 func TestSetHealthy(t *testing.T) {
-	SetStatusAndReason(Down, "for what")
-	if GetStatus() != Down {
-		t.Error("expected status to be 'Down', got", GetStatus())
+	defer health.SetHealthy()
+	health.SetStatusAndReason(health.Down, "for what")
+	if health.GetStatus() != health.Down {
+		t.Error("expected status to be 'Down', got", health.GetStatus())
 	}
-	if GetReason() != "for what" {
-		t.Error("expected reason to be 'for what', got", GetReason())
+	if health.GetReason() != "for what" {
+		t.Error("expected reason to be 'for what', got", health.GetReason())
 	}
-	SetHealthy()
-	if GetStatus() != Up {
-		t.Error("expected status to be 'Up', got", GetStatus())
+	health.SetHealthy()
+	if health.GetStatus() != health.Up {
+		t.Error("expected status to be 'Up', got", health.GetStatus())
 	}
-	if GetReason() != "" {
-		t.Error("expected reason to be '', got", GetReason())
+	if health.GetReason() != "" {
+		t.Error("expected reason to be '', got", health.GetReason())
 	}
 }
 
 func TestSetUnhealthy(t *testing.T) {
-	SetStatusAndReason(Up, "")
-	if GetStatus() != Up {
-		t.Error("expected status to be '', got", GetStatus())
+	defer health.SetHealthy()
+	health.SetStatusAndReason(health.Up, "")
+	if health.GetStatus() != health.Up {
+		t.Error("expected status to be '', got", health.GetStatus())
 	}
-	if GetReason() != "" {
-		t.Error("expected reason to be '', got", GetReason())
+	if health.GetReason() != "" {
+		t.Error("expected reason to be '', got", health.GetReason())
 	}
-	SetUnhealthy("for what")
-	if GetStatus() != Down {
-		t.Error("expected status to be 'Down', got", GetStatus())
+	health.SetUnhealthy("for what")
+	if health.GetStatus() != health.Down {
+		t.Error("expected status to be 'Down', got", health.GetStatus())
 	}
-	if GetReason() != "for what" {
-		t.Error("expected reason to be 'for what', got", GetReason())
+	if health.GetReason() != "for what" {
+		t.Error("expected reason to be 'for what', got", health.GetReason())
 	}
 }
