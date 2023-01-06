@@ -90,3 +90,17 @@ func main() {
     server.ListenAndServe()
 }
 ```
+
+
+### Using health with third party router/mux/http libraries
+Here's an example with [fiber](https://github.com/gofiber/fiber):
+```go
+healthHandler := health.Handler().WithJSON(true)
+
+app := fiber.New()
+app.Get("/health", func(c *fiber.Ctx) error {
+    statusCode, body := healthHandler.GetResponseStatusCodeAndBody()
+    return c.Status(statusCode).Send(body)
+})
+app.Listen(":8080")
+```
