@@ -1,5 +1,5 @@
 # health
-![test](https://github.com/TwiN/health/workflows/test/badge.svg?branch=master) 
+[![test](https://github.com/TwiN/health/actions/workflows/test.yml/badge.svg)](https://github.com/TwiN/health/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/TwiN/health)](https://goreportcard.com/report/github.com/TwiN/health)
 [![codecov](https://codecov.io/gh/TwiN/health/branch/master/graph/badge.svg)](https://codecov.io/gh/TwiN/health)
 [![Go version](https://img.shields.io/github/go-mod/go-version/TwiN/health.svg)](https://github.com/TwiN/health)
